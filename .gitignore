@@ -1,0 +1,7 @@
+node_modules
+lib
+coverage
+npm-debug*
+yarn-*
+dist/
+.cache
