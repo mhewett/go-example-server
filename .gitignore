@@ -5,3 +5,4 @@ npm-debug*
 yarn-*
 dist/
 .cache
+.idea/
