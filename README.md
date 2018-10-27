@@ -1,6 +1,6 @@
-# godoc-based local server for Go examples
+# A godoc-based local server for Go examples
 
-This is the server component for [https://github.com/mhewett/sourcegraph-coding-examples](https://github.com/mhewett/sourcegraph-coding-examples).
+This is an example server component for the [https://github.com/mhewett/sourcegraph-coding-examples](https://github.com/mhewett/sourcegraph-coding-examples) extension.
 
 ## Prerequisites
 1. Install Go on your local machine.
@@ -19,10 +19,10 @@ http://localhost:8844/go/io/MultiReader
 http://localhost:8844/java/util/concurrent/ConcurrentHashMap
 ```
 You can optionally specify a language version with `languageVersion`.  
-This will refer to the language or library version, depending on the language and symbol requested.
+This will refer to the language or library version, as appropriate for the language and symbol requested.
 ```
 http://localhost:8844/go/io/MultiReader?languageVersion=1
-http://localhost:8844/go/io/MultiReader?languageVersion=0.5
+http://localhost:8844/go/io/MultiReader?languageVersion=1.09
 http://localhost:8844/java/util/concurrent/ConcurrentHashMap?languageVersion=7
 http://localhost:8844/java/util/concurrent/ConcurrentHashMap?languageVersion=latest
 http://localhost:8844/lisp/signum?languageVersion=cltl2
