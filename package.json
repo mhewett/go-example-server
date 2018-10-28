@@ -16,8 +16,8 @@
     "ws": "^6.0.0"
   },
   "scripts": {
-    "serve": "npm install && tsc -p . && node dist/index.js",
-    "run": "tsc -p . && node dist/index.js"
+    "build": "npm install && tsc -p .",
+    "server": "tsc -p . && node dist/index.js"
   },
   "devDependencies": {
     "@sourcegraph/tsconfig": "^3.0.0",
