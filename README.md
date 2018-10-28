@@ -82,7 +82,7 @@ In the non-JSON formats the server returns only the example text.
 
 The `Content-Type` header is set appropriately for the response format.
 ```
-http://localhost:8844/go/io/MultiReader?format=html
-http://localhost:8844/go/io/MultiReader?format=json     (default)
-http://localhost:8844/go/io/MultiReader?format=text
+http://localhost:8844/go/MultiReader?package=io&format=html
+http://localhost:8844/go/MultiReader?package=io&format=json     (default)
+http://localhost:8844/go/MultiReader?package=io&format=text
 ```
