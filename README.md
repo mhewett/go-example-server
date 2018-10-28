@@ -25,7 +25,7 @@ General form: `http://localhost:8844/<language>/<symbol>?package=<package>`
 **parameters**
 - **language** the language, such as Go, Java, or Python (*required*)
 - **symbol** the class, type, function, or method, such as `MultiReader` or `ConcurrentHashMap` (*required*)
-    - For a Java method, put the method name here and include the Class in the package, e.g. `java.lang.Math`
+    - For a Java method, use the method name as the symbol and include the Class in the package, e.g. `java.lang.Math`
 - **package** the package the symbol is in (*required* except for base language symbols such as `switch`)
 - **format**  the desired return format (*optional*) defaults to `json`, other options are `html` and `text` 
 
