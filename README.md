@@ -11,17 +11,31 @@ It is architected to be a general language server but currently only works on ex
 ## Building and running this server
 1. `npm run build`
     1. Runs `npm install` and `tsc` to compile the code
-1. `npm run server` or `node src/index.js -port nnnn`
+1. `npm run server` or `node src/index.js`
     1. Runs `tsc` to compile the code and then starts the server
-    1. Defaults to port 8844
-    1. Use `-port nnnn` to change the port: `npm run server -- -port 9999`
+    1. Defaults to **port 8844**
+    1. Use `-port nnnn` to change the port:
+        1. `npm run server -- -port 9999`
+        1. `node src/index.js -port 9999`
+    1. Use `-debug` to print debug statements
 
 ## Example web service calls
+General form: `http://localhost:8844/<language>/<symbol>?package=<package>`
+
+**parameters**
+- **language** the language, such as Go, Java, or Python (*required*)
+- **symbol** the class, type, function, or method, such as `MultiReader` or `ConcurrentHashMap` (*required*)
+    - For a Java method, put the method name here and include the Class in the package, e.g. `java.lang.Math`
+- **package** the package the symbol is in (*required* except for base language symbols such as `switch`)
+- **format**  the desired return format (*optional*) defaults to `json`, other options are `html` and `text` 
+
 **Note: The current implementation is a proof of concept and only supports Go.**
 ```
-http://localhost:8844/go/io/MultiReader
-http://localhost:8844/java/java/util/concurrent/ConcurrentHashMap
+http://localhost:8844/go/MultiReader?package=io
+http://localhost:8844/go/ResponseWriter?package=net/http
+http://localhost:8844/java/ConcurrentHashMap?package=java.util.concurrent
 ```
+### languageVersion: Not Yet Implemented
 You can optionally specify a language version with `languageVersion`.  
 This will refer to the language or library version, as appropriate for the language and symbol requested.
 ```
@@ -39,7 +53,7 @@ the server will respond with a 404 error.
 
 ## Examples
 ###Call
-`http://localhost:8844/go/io/CopyN`
+`http://localhost:8844/go/CopyN?package=io`
 ###Output (200)
 ```
 {
@@ -48,7 +62,7 @@ the server will respond with a 404 error.
 }
 ```
 ###Call
-`http://localhost:8844/go/io/CopyFoo`
+`http://localhost:8844/go/CopyFoo?package=io`
 ###Output (404)
 ```
 {

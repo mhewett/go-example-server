@@ -89,24 +89,21 @@ function unsupported(res: any, valueType: string, value: string): void {
  * pkg can be one class or an array of them.
  *
  * @param language 'Go', 'Java', etc.
- * @param pkgs An array of package names
- * @param funcOrClass the name of a function or class
- * @param methodName an optional method name or function name inside a class or function
- * @param document the document being viewed
- * @param position the position in the document {line: n, column: n}
+ * @param pkg The package
+ * @param symbol the name of a function or class
  * @param format 'html', 'text', or 'raw' with html as the default
  * @param res the response to send information to
  */
-function processRequest(language: string, pkgs: string[], funcOrClass:string, methodName:string, document:string, position:string, res:any, format:string) : void {
+function processRequest(language: string, pkg: string, symbol:string, format:string, res:any) : void {
 
     if (DEBUG) {
-        console.log(`lang: ${language}, ${pkgs} ${funcOrClass}`);
+        console.log(`lang: ${language}, ${pkg} ${symbol}`);
     }
 
     const lang = language.toLowerCase();
 
     if (lang === 'go') {
-        returnGoExample(pkgs, funcOrClass, methodName, document, position, res, format);
+        returnGoExample(pkg, symbol, format, res);
     }
     else {
         unsupported(res, 'language', lang);
@@ -137,29 +134,29 @@ function formatExampleAsHtml(language: string, str: string): string {
  * The examples are from the <code>godoc</code> command <code>godoc -ex pkg function</code>.
  * Go must be installed on the local machine.
  *
- * @param pkgs An array of package names
- * @param funcOrClass the name of a function or class
- * @param methodName an optional method name or function name inside a class or function
- * @param document the document being viewed
- * @param position the position in the document {line: n, column: n}
+ * @param pkg The package name
+ * @param symbol the name of a function or class
  * @param format 'html', 'text', or 'raw' with html as the default
  * @param res the response to send information toasync function getGoExample(pkg: string[], funcOrClass:string, methodName:string, document:string, position:string, res:any, format:string) : void {
  */
-function returnGoExample(pkgs: string[], funcOrClass:string, methodName:string, document:string, position:string, res:any, format:string) : void {
+function returnGoExample(pkg: string, symbol:string, format:string, res:any) : void {
 
-    const packages = pkgs.join(' ');
+    // The package can be aaa.bbb or aaa/bbb or maybe even aaa.bbb/ccc, I'm not sure.
+    // We need to split on periods but keep slashes together
+    const packages = pkg ? pkg.replace(/\./g, ' ') : '';
 
     // Run the godoc command
-    const docCommand = `godoc -ex ${packages} ${funcOrClass}`;
+    const docCommand = `godoc -ex ${packages} ${symbol}`;
     if (DEBUG) {
         console.log(docCommand);
     }
 
-    exec(`godoc -ex ${packages} ${funcOrClass}`, (err, stdout, stderr) => {
+    exec(docCommand, (err, stdout, stderr) => {
         if (err) {
             res.status(500).send({error: 'Error running godoc.  Is it installed? ' + stderr});
         } else {
-            // Find the start of the example
+            // The output from the command is in stdout
+            // The example has documentation starting with 'func' and an Example starting with 'Example'
             let exampleCode = '';
             let documentation = '';
             const funcIndex = stdout.indexOf('func');
@@ -176,6 +173,7 @@ function returnGoExample(pkgs: string[], funcOrClass:string, methodName:string, 
             }
 
             // Return the example if possible, else return the documentation
+            // TODO: Some symbols such as net/http.Handler have multiple func and Example entries.  Figure out how to handle those.
             if (exampleCode.length > 0) {
                 res.status(200);
                 if (format === 'text') {
@@ -195,7 +193,7 @@ function returnGoExample(pkgs: string[], funcOrClass:string, methodName:string, 
                     res.type('application/json').send({example: '', doc: documentation});
                 }
             } else {
-                res.status(404).send({error: `No example available for ${pkgs.join('.')}.${funcOrClass}`});
+                res.status(404).send({error: `No example available for ${pkg}.${symbol}`});
             }
         }
     });
@@ -231,25 +229,14 @@ function main(): any {
 
     // These have the form /language/package[/subpackage]*/classOrFunction?method=methodName&languageVersion=n&format={html,text,json}&document=doc&position=position
 
-    // Must have at least one package to match.
-    app.get('/:lang/:package*/:function',
+    // This is the main web service
+    app.get('/:lang/:symbol',
         asyncHandler(async (req, res) => {
-            const pkgs = (req.params[0]) ? req.params[0].split('/') : ['foo'];
-            pkgs[0] = req.params.package;
-
-            processRequest(req.params.lang, pkgs,
-                req.params.function, req.params.methodName,
-                req.params.document, req.params.position,
-                res, req.query.format);
-        }));
-
-    // The no-package case.  Not sure if this one will ever happen in Go or Java.
-    app.get('/:lang/:function',
-        asyncHandler(async (req, res) => {
-            processRequest(req.params.lang, [],
-                req.params.function, req.params.methodName,
-                req.params.document, req.params.position,
-                res, req.query.format);
+            processRequest(req.params.lang,
+                req.query.package,
+                req.params.symbol,
+                req.query.format,
+                res);
         }));
 
     app.listen(LANG_SERVER_PORT, () => {
