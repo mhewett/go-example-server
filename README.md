@@ -52,18 +52,18 @@ If the server can determine that the class or function is not available in the s
 the server will respond with a 404 error.
 
 ## Examples
-###Call
+### Call
 `http://localhost:8844/go/CopyN?package=io`
-###Output (200)
+### Output (200)
 ```
 {
   "example": "Example:\n r := strings.NewReader(\"some io.Reader stream to be read\")\n\n if _, err := io.CopyN(os.Stdout, r, 5); err != nil {\n log.Fatal(err)\n }\n\n // Output:\n // some\n\n\n",
   "doc": "func CopyN(dst Writer, src Reader, n int64) (written int64, err error)\n CopyN copies n bytes (or until an error) from src to dst. It returns the\n number of bytes copied and the earliest error encountered while copying.\n On return, written == n if and only if err == nil.\n\n If dst implements the ReaderFrom interface, the copy is implemented\n using it.\n\n "
 }
 ```
-###Call
+### Call
 `http://localhost:8844/go/CopyFoo?package=io`
-###Output (404)
+### Output (404)
 ```
 {
   "error": "io.CopyFoo not found"
